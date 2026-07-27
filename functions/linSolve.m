@@ -44,4 +44,5 @@ if (NRit)>0
     duvw(fd)=Kt(fd,fd)\(oobf(fd)-Kt(fd,bc(:,1))*duvw(bc(:,1)));             % solve for displacements
     drct(bc(:,1))=Kt(bc(:,1),:)*duvw-oobf(bc(:,1));                         % determine reaction forces 
 end
+%duvw = real(duvw);
 end

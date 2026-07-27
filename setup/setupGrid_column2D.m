@@ -1,7 +1,6 @@
-function [lstps,g,mpData,mesh] = setupGrid3D
-%3D elastic column collapse problem, CEA, JUly 2026
+function [lstps,g,mpData,mesh] = setupGrid_column2D
 
-  %Problem setup information
+%Problem setup information
 %--------------------------------------------------------------------------
 % Author: William Coombs
 % Date:   29/01/2019
@@ -61,30 +60,26 @@ g      = 10;                                                                % gr
 rho    = 80;                                                                % material density
 lstps  = 40;                                                                % number of loadsteps
 nelsx  = 1;                                                                 % number of elements in the x direction
-nelsy  = 1;                                                               % number of elements in the y direction
-nelsz  = 2^4;
-lz     = 50;  lx = lz/nelsz; ly = lz/nelsz;                                                % domain dimensions
+nelsy  = 2^4;                                                               % number of elements in the y direction
+ly     = 50;  lx = ly/nelsy;                                                % domain dimensions
 mp     = 2;                                                                 % number of material points in each direction per element
 mpType = 2;                                                                 % material point type: 1 = MPM, 2 = GIMP
 cmType = 1;                                                                 % constitutive model: 1 = elastic, 2 = vM plasticity
 
 %% Mesh generation
-[etpl,coord] = formCoord3D(nelsx,nelsy,nelsz,lx,ly,lz);                              % background mesh generation
+[etpl,coord] = formCoord2D(nelsx,nelsy,lx,ly);                              % background mesh generation
 [nels,nen]   = size(etpl);                                                  % number of elements and nodes per element
 [nodes,nD]   = size(coord);                                                 % number of nodes and dimensions
-h            = [lx ly lz]./[nelsx nelsy nelsz];                              % element lengths in each direction
+h            = [lx ly]./[nelsx nelsy];                                      % element lengths in each direction
 
 %% Boundary conditions on background mesh
 bc = zeros(nodes*nD,2);                                                     % generate empty bc matrix
 for node=1:nodes                                                            % loop over nodes
   if coord(node,1)==0 || coord(node,1)==lx                                  % roller sides
-    bc(node*3-2,:)=[node*3-2 0];    
+    bc(node*2-1,:)=[node*2-1 0];    
   end
-  if coord(node,2)==0 || coord(node,2)==ly                                  % roller sides
-    bc(node*3-1,:)=[node*3-1 0];    
-  end
-  if coord(node,3)==0                                                       % roller base
-    bc(node*3  ,:)=[node*3   0];
+  if coord(node,2)==0                                                       % roller base
+    bc(node*2  ,:)=[node*2   0];
   end
 end
 bc = bc(bc(:,1)>0,:);                                                       % remove empty part of bc
@@ -111,7 +106,7 @@ mesh.eMax  = eMax;                                                          % el
 ngp    = mp^nD;                                                             % number of material points per element
 GpLoc  = detMpPos(mp,nD);                                                   % local MP locations (for each element)
 N      = shapefunc(nen,GpLoc,nD);                                           % basis functions for the material points
-[etplmp,coordmp] = formCoord3D(nelsx,nelsy,nelsz,lx,ly,lz);                          % mesh for MP generation
+[etplmp,coordmp] = formCoord2D(nelsx,nelsy,lx,ly);                          % mesh for MP generation
 nelsmp = size(etplmp,1);                                                    % no. elements populated with material points
 nmp    = ngp*nelsmp;                                                        % total number of mterial points
 
@@ -122,11 +117,10 @@ for nel=1:nelsmp
   mpPos=N*eC;                                                               % global MP coordinates
   mpC(indx,:)=mpPos;                                                        % store MP positions
 end
-lp = zeros(nmp,3);                                                          % zero domain lengths
+lp = zeros(nmp,2);                                                          % zero domain lengths
 lp(:,1) = h(1)/(2*mp);                                                      % domain half length x-direction
 lp(:,2) = h(2)/(2*mp);                                                      % domain half length y-direction
-lp(:,3) = h(3)/(2*mp);
-vp      = 2^nD*lp(:,1).*lp(:,2).*lp(:,3);                                   % volume associated with each material point
+vp      = 2^nD*lp(:,1).*lp(:,2);                                            % volume associated with each material point
 
 %% Material point structure generation
 for mp = nmp:-1:1                                                           % loop backwards over MPs so array doesn't change size

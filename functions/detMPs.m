@@ -66,7 +66,8 @@ else                                                                        % 3D
     aPos=[1 2 3 4 5 6 7 8 9];
     sPos=[1 2 3 4 4 5 5 6 6];
 end
-
+minDetdF = inf;
+minMp = 0;
 for mp=1:nmp                                                                % material point loop
     
     nIN = mpData(mp).nIN;                                                   % nodes associated with the material point 
@@ -93,8 +94,10 @@ for mp=1:nmp                                                                % ma
     F      = dF*mpData(mp).Fn;                                              % deformation gradient
     epsEn  = mpData(mp).epsEn; epsEn(4:6) = 0.5*epsEn(4:6);                 % previous elastic strain
     epsEn  = epsEn([1 4 6; 4 2 5; 6 5 3]);                                  % matrix form of previous elastic strain
+    epsEn = 0.5*(epsEn + epsEn');                                           % ensures epsEn is symmetric
     [V,D]  = eig(epsEn);                                                    % eigen values and vectors of the elastic strain
     BeT    = dF*(V*diag(exp(2*diag(D)))*V.')*dF.';                          % trial left Cauchy-Green strain
+    BeT = 0.5*(BeT + BeT');                                                 % ensures BeT is symmetric
     [V,D]  = eig(BeT);                                                      % eigen values and vectors of the trial left Cauchy-Green strain
     epsEtr = 0.5*V*diag(log(diag(D)))*V.';                                  % trial elastic strain (tensor form)
     epsEtr = diag([1 1 1 2 2 2])*epsEtr([1 5 9 2 6 3]).';                   % trial elastic strain (vector form)
