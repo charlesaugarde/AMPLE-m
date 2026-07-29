@@ -1,6 +1,6 @@
 function [lstps,g,mpData,mesh] = setupGrid_column3D
 %3D elastic column collapse problem, CEA, JUly 2026
-
+% WITH GHOST ADDED 
   %Problem setup information
 %--------------------------------------------------------------------------
 % Author: William Coombs
@@ -47,6 +47,11 @@ function [lstps,g,mpData,mesh] = setupGrid_column3D
 %           - etpl  : element topology (nels,nen)
 %           - bc    : boundary conditions (*,2)
 %           - h     : background mesh size (nD,1)
+%           - ftpl  : face-element interactions
+%           - fntpl : face topology (node numbers)
+%           - eMin  : element lower coordinate limit 
+%           - eMax  : element upper coordainte limit 
+%           - ks    : Ghost stabilisation parameter
 %--------------------------------------------------------------------------
 % See also:
 % FORMCOORD2D - background mesh generation
@@ -67,9 +72,9 @@ lz     = 50;  lx = lz/nelsz; ly = lz/nelsz;                                     
 mp     = 2;                                                                 % number of material points in each direction per element
 mpType = 2;                                                                 % material point type: 1 = MPM, 2 = GIMP
 cmType = 1;                                                                 % constitutive model: 1 = elastic, 2 = vM plasticity
-
+ks     = E;
 %% Mesh generation
-[etpl,coord] = formCoord3D(nelsx,nelsy,nelsz,lx,ly,lz);                              % background mesh generation
+[etpl,coord,ftpl,fntpl] = formCoord3D(nelsx,nelsy,nelsz,lx,ly,lz);                              % background mesh generation
 [nels,nen]   = size(etpl);                                                  % number of elements and nodes per element
 [nodes,nD]   = size(coord);                                                 % number of nodes and dimensions
 h            = [lx ly lz]./[nelsx nelsy nelsz];                              % element lengths in each direction
@@ -104,9 +109,11 @@ mesh.etpl  = etpl;                                                          % el
 mesh.coord = coord;                                                         % nodal coordinates
 mesh.bc    = bc;                                                            % boundary conditions
 mesh.h     = h;                                                             % mesh size
+mesh.ftpl  = ftpl
+mesh.fntpl = fntpl
 mesh.eMin  = eMin;                                                          % element lower coordinate limit 
 mesh.eMax  = eMax;                                                          % element upper coordainte limit 
-
+mesh.ks    = ks
 %% Material point generation
 ngp    = mp^nD;                                                             % number of material points per element
 GpLoc  = detMpPos(mp,nD);                                                   % local MP locations (for each element)
