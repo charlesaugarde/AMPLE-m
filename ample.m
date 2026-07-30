@@ -22,7 +22,7 @@
 %--------------------------------------------------------------------------
 clear;
 addpath('constitutive','functions','plotting','setup');        
-[lstps,g,mpData,mesh] = setupGrid_column2D;                                          % setup information
+[lstps,g,mpData,mesh] = setupGrid_column3D;                                          % setup information
 NRitMax = 10; tol = 1e-6;                                                   % Newton Raphson parameters
 [nodes,nD] = size(mesh.coord);                                              % number of nodes and dimensions
 [nels,nen] = size(mesh.etpl);                                               % number of elements and nodes/element

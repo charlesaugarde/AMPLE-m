@@ -74,7 +74,7 @@ mpType = 2;                                                                 % ma
 cmType = 1;                                                                 % constitutive model: 1 = elastic, 2 = vM plasticity
 ks     = E;
 %% Mesh generation
-[etpl,coord,ftpl,fntpl] = formCoord3D(nelsx,nelsy,nelsz,lx,ly,lz);                              % background mesh generation
+[etpl,coord,ftpl,fntpl,efnum] = formCoord3D(nelsx,nelsy,nelsz,lx,ly,lz);                              % background mesh generation
 [nels,nen]   = size(etpl);                                                  % number of elements and nodes per element
 [nodes,nD]   = size(coord);                                                 % number of nodes and dimensions
 h            = [lx ly lz]./[nelsx nelsy nelsz];                              % element lengths in each direction

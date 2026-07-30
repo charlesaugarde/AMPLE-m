@@ -1,4 +1,4 @@
-function [etpl,coord] = formCoord3D(nelsx,nelsy,nelsz,lx,ly,lz)
+function [etpl,coord,ftpl,fntpl,efnum] = formCoord3D(nelsx,nelsy,nelsz,lx,ly,lz)
 
 
   % 3Dversion, CEA, JULY2026
@@ -63,3 +63,8 @@ for j=1:nelsy
         end
     end
 end
+
+nfaces = (nelsx-1)*nelsy*nelsz + (nelsy-1)*nelsx*nelsz + (nelsz-1)*nelsx*nelsy;
+ftpl   = zeros(nfaces,2);
+fntpl  = zeros(nfaces,4);
+efnum  = zeros(nfaces,2);
